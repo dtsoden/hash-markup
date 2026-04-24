@@ -1,0 +1,15 @@
+node_modules/
+out/
+release/
+dist/
+dist-node/
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+.vscode/
+.idea/
+.claude/
+*.tsbuildinfo
+electron.vite.config.*.mjs
