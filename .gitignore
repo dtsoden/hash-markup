@@ -13,3 +13,5 @@ Thumbs.db
 .claude/
 *.tsbuildinfo
 electron.vite.config.*.mjs
+*~lock~
+.~lock.*
