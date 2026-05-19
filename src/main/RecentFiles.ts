@@ -1,7 +1,7 @@
 import Store from 'electron-store';
 import { BrowserWindow } from 'electron';
 import { promises as fs } from 'fs';
-import { IpcChannels } from '../shared/ipc-channels';
+import { IpcChannels, ZOOM_DEFAULT } from '../shared/ipc-channels';
 
 const MAX = 10;
 
@@ -12,6 +12,7 @@ interface Schema {
   spellcheckEnabled: boolean;
   theme: ThemePref;
   sanitizerEnabled: boolean;
+  zoomFactor: number;
 }
 
 /**
@@ -27,6 +28,7 @@ export class RecentFiles {
       // Safe default: sanitize HTML. Users flip this off to unlock
       // color-syntax / chart / UML plugins that write raw HTML.
       sanitizerEnabled: true,
+      zoomFactor: ZOOM_DEFAULT,
     },
   });
   private changeListeners = new Set<(list: string[]) => void>();
@@ -95,6 +97,14 @@ export class RecentFiles {
   setSanitizer(enabled: boolean): void {
     this.store.set('sanitizerEnabled', enabled);
     for (const cb of this.changeListeners) cb(this.list());
+  }
+
+  getZoom(): number {
+    return this.store.get('zoomFactor');
+  }
+
+  setZoom(factor: number): void {
+    this.store.set('zoomFactor', factor);
   }
 
   private broadcast(): void {

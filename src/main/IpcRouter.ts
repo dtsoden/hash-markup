@@ -1,5 +1,13 @@
 import { ipcMain, BrowserWindow, session } from 'electron';
-import { IpcChannels, type SaveFileRequest } from '../shared/ipc-channels';
+import {
+  IpcChannels,
+  ZOOM_MIN,
+  ZOOM_MAX,
+  ZOOM_STEP,
+  ZOOM_DEFAULT,
+  type SaveFileRequest,
+  type ZoomStepDirection,
+} from '../shared/ipc-channels';
 import type { FileManager } from './FileManager';
 import type { RecentFiles } from './RecentFiles';
 import type { FolderService } from './FolderService';
@@ -70,5 +78,33 @@ export class IpcRouter {
       (_e, payload: { content: string; fileName: string }) =>
         pdf.export(this.getWindow(), payload.content, payload.fileName),
     );
+
+    ipcMain.handle(IpcChannels.ZoomGet, () => recent.getZoom());
+    ipcMain.handle(IpcChannels.ZoomStep, (_e, direction: ZoomStepDirection) => {
+      const current = recent.getZoom();
+      const next =
+        direction === 'reset'
+          ? ZOOM_DEFAULT
+          : clamp(
+              round1(current + (direction === 'in' ? ZOOM_STEP : -ZOOM_STEP)),
+              ZOOM_MIN,
+              ZOOM_MAX,
+            );
+      recent.setZoom(next);
+      for (const w of BrowserWindow.getAllWindows()) {
+        w.webContents.setZoomFactor(next);
+        w.webContents.send(IpcChannels.ZoomChanged, next);
+      }
+      return next;
+    });
   }
+}
+
+function clamp(n: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, n));
+}
+
+function round1(n: number): number {
+  // Snap to 0.1 grid so floating-point drift doesn't turn 1.3 into 1.2999999.
+  return Math.round(n * 10) / 10;
 }

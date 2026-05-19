@@ -25,6 +25,7 @@ export function App() {
   const [spellcheck, setSpellcheck] = useState(true);
   const [sanitize, setSanitize] = useState(true);
   const [themePref, setThemePref] = useState<'auto' | 'light' | 'dark'>('auto');
+  const [zoomFactor, setZoomFactor] = useState(1);
   const [osDark, setOsDark] = useState(() =>
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   );
@@ -47,6 +48,29 @@ export function App() {
     window.api.getSpellcheck().then(setSpellcheck);
     window.api.getTheme().then(setThemePref);
     window.api.getSanitizer().then(setSanitize);
+    window.api.getZoom().then(setZoomFactor);
+    const offZoom = window.api.onZoomChanged(setZoomFactor);
+    return offZoom;
+  }, []);
+
+  // Ctrl/Cmd + mouse wheel zooms the whole window. Chromium's browser
+  // chrome normally owns this binding; in Electron the renderer has to
+  // wire it up explicitly. Accumulator throttles trackpad momentum so a
+  // single gesture doesn't slam zoom to the clamp.
+  useEffect(() => {
+    let accum = 0;
+    const onWheel = (e: WheelEvent): void => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      accum += e.deltaY;
+      if (Math.abs(accum) < 40) return;
+      const dir = accum > 0 ? 'out' : 'in';
+      accum = 0;
+      window.api.zoomStep(dir);
+    };
+    window.addEventListener('wheel', onWheel, { passive: false, capture: true });
+    return () => window.removeEventListener('wheel', onWheel, { capture: true });
   }, []);
 
   const openPath = async (p: string): Promise<void> => {
@@ -120,6 +144,9 @@ export function App() {
           break;
         }
         case 'clear-recent': window.api.recentClear(); break;
+        case 'zoom-in': window.api.zoomStep('in'); break;
+        case 'zoom-out': window.api.zoomStep('out'); break;
+        case 'zoom-reset': window.api.zoomStep('reset'); break;
       }
     });
     const offRecent = window.api.onOpenRecentPath(openPath);
@@ -183,6 +210,7 @@ export function App() {
         <span>{mode === 'wysiwyg' ? 'WYSIWYG' : 'Markdown'}</span>
         <span>Spell: {spellcheck ? 'on' : 'off'}</span>
         <span>HTML: {sanitize ? 'safe' : 'raw'}</span>
+        <span>Zoom: {Math.round(zoomFactor * 100)}%</span>
         <span>{snap.activeContent.length} chars</span>
         <span>{snap.activeFilePath ?? 'Not saved'}</span>
       </footer>

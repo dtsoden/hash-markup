@@ -84,6 +84,12 @@ class Application {
       }
     }
 
+    // Re-apply persisted zoom on every load (Chromium resets zoom per
+    // navigation; this covers initial load, reloads, and hot reload in dev).
+    bw.webContents.on('did-finish-load', () => {
+      bw.webContents.setZoomFactor(this.recent.getZoom());
+    });
+
     app.on('activate', () => this.getOrCreateWindow());
 
     app.on('window-all-closed', () => {

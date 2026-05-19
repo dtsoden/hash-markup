@@ -19,6 +19,9 @@ export const IpcChannels = {
   MenuAction: 'menu:action',
   OpenRecentPath: 'menu:open-recent-path',
   InitialFile: 'window:initial-file',
+  ZoomGet: 'zoom:get',
+  ZoomStep: 'zoom:step',
+  ZoomChanged: 'zoom:changed',
 } as const;
 
 export type IpcChannel = (typeof IpcChannels)[keyof typeof IpcChannels];
@@ -52,6 +55,16 @@ export type MenuAction =
   | 'toggle-spellcheck'
   | 'toggle-sanitizer'
   | 'set-theme'
-  | 'clear-recent';
+  | 'clear-recent'
+  | 'zoom-in'
+  | 'zoom-out'
+  | 'zoom-reset';
+
+export type ZoomStepDirection = 'in' | 'out' | 'reset';
+
+export const ZOOM_MIN = 0.5;
+export const ZOOM_MAX = 3.0;
+export const ZOOM_STEP = 0.1;
+export const ZOOM_DEFAULT = 1.0;
 
 export type ThemePref = 'auto' | 'light' | 'dark';

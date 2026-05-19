@@ -5,6 +5,7 @@ import {
   type SaveFileRequest,
   type SaveFileResult,
   type MenuAction,
+  type ZoomStepDirection,
 } from '../shared/ipc-channels';
 
 interface FolderNode {
@@ -44,6 +45,15 @@ const api = {
 
   exportPdf: (payload: { content: string; fileName: string }): Promise<string | null> =>
     ipcRenderer.invoke(IpcChannels.ExportPdf, payload),
+
+  getZoom: (): Promise<number> => ipcRenderer.invoke(IpcChannels.ZoomGet),
+  zoomStep: (direction: ZoomStepDirection): Promise<number> =>
+    ipcRenderer.invoke(IpcChannels.ZoomStep, direction),
+  onZoomChanged: (handler: (factor: number) => void): (() => void) => {
+    const listener = (_: unknown, factor: number): void => handler(factor);
+    ipcRenderer.on(IpcChannels.ZoomChanged, listener);
+    return () => ipcRenderer.removeListener(IpcChannels.ZoomChanged, listener);
+  },
 
   onMenuAction: (handler: (action: MenuAction, payload?: unknown) => void): (() => void) => {
     const listener = (_: unknown, action: MenuAction, payload?: unknown): void =>
