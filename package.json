@@ -33,6 +33,7 @@
   "devDependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
@@ -54,7 +55,10 @@
       "resources/**/*"
     ],
     "extraResources": [
-      { "from": "build/icon.png", "to": "icon.png" }
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
+      }
     ],
     "fileAssociations": [
       {
@@ -72,7 +76,13 @@
       "category": "public.app-category.productivity",
       "icon": "build/icon.png",
       "target": [
-        { "target": "dmg", "arch": ["x64", "arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "artifactName": "Hash-Markup-mac-${arch}.${ext}",
       "hardenedRuntime": true,
@@ -84,7 +94,12 @@
     "win": {
       "icon": "build/icon.png",
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "artifactName": "Hash-Markup-Setup-Windows.${ext}",
       "sign": "./scripts/sign-windows.js"
