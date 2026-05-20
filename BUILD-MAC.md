@@ -1,13 +1,25 @@
 # Mac build handoff
 
-This file is the recipe for producing the macOS DMGs (Intel + Apple Silicon) of Hash Markup. It is meant to be run from a Mac with the source checked out at the same commit as the Windows release.
+This file is the recipe for producing the macOS deliverables of Hash Markup. It is meant to be run from a Mac with the source checked out at the same commit as the Windows release.
 
-The Windows side runs from a Windows machine and builds `Hash-Markup-Setup-Windows.exe`. The Mac side runs from a Mac and builds:
+The Windows side runs from a Windows machine and builds `Hash-Markup-Setup-Windows.exe` plus `latest.yml`. The Mac side runs from a Mac and builds:
 
-- `Hash-Markup-mac-arm64.dmg` (Apple Silicon)
-- `Hash-Markup-mac-x64.dmg` (Intel)
+- `Hash-Markup-mac-arm64.dmg` (Apple Silicon first-time install)
+- `Hash-Markup-mac-x64.dmg` (Intel first-time install)
+- `Hash-Markup-mac-arm64.zip` (Apple Silicon auto-update payload)
+- `Hash-Markup-mac-x64.zip` (Intel auto-update payload)
+- `latest-mac.yml` (electron-updater manifest; the in-app updater reads this from the GitHub release to detect new versions)
 
-Both sides ship as assets on the same GitHub Release tag.
+All five Mac files plus the Windows side's two ship as assets on the same GitHub Release tag.
+
+## v0.1.1 changes the rules: notarization is now mandatory
+
+Starting with v0.1.1, the app has an in-app auto-updater (`electron-updater`). For it to actually install an update on a user's machine, **every release must be Developer-ID-signed AND Apple-notarized**. A signed-but-not-notarized release will:
+
+- Pass Gatekeeper on first install (right-click > Open still works once).
+- **Fail silently** when the auto-updater tries to apply the next release on top of it, because macOS Gatekeeper rejects the staple verification at apply time.
+
+`package.json` -> `build.mac.notarize` is `true`. The `scripts/notarize.cjs` `afterSign` hook is invoked automatically. Both rely on `APPLE_KEYCHAIN_PROFILE` being set in the environment. Don't ship a release without it.
 
 ---
 
@@ -85,12 +97,17 @@ npm install                   # in case dependencies changed
 APPLE_KEYCHAIN_PROFILE=hash-markup-notarytool npm run package:mac
 ```
 
-This produces:
+This produces (in `release/`):
 
 ```
-release/Hash-Markup-mac-arm64.dmg
-release/Hash-Markup-mac-x64.dmg
+Hash-Markup-mac-arm64.dmg          first-time install, Apple Silicon
+Hash-Markup-mac-x64.dmg            first-time install, Intel
+Hash-Markup-mac-arm64.zip          auto-update payload, Apple Silicon
+Hash-Markup-mac-x64.zip            auto-update payload, Intel
+latest-mac.yml                     electron-updater manifest
 ```
+
+The two `.zip` files are NEW as of v0.1.1; they're how `electron-updater` applies updates on macOS (it can't update from a `.dmg`). `latest-mac.yml` is also new; it's the manifest the in-app updater fetches from the GitHub release to detect new versions, and lists SHA-512 hashes for both ZIPs.
 
 (Plus some build-artifact subdirs you can ignore.)
 
@@ -104,11 +121,9 @@ release/Hash-Markup-mac-x64.dmg
 
 The `APPLE_KEYCHAIN_PROFILE` env var tells the hook which Keychain profile to use. That's why step 4 in Prerequisites is required.
 
-`build.mac.notarize` is intentionally `false` — that disables electron-builder's built-in notarize path (which only honors `APPLE_ID` + `APPLE_APP_SPECIFIC_PASSWORD` env vars and would force the password onto disk/env). The custom hook supersedes it.
+As of v0.1.1, `build.mac.notarize` is `true`. The custom `afterSign` hook (`scripts/notarize.cjs`) does the notarytool submission using `APPLE_KEYCHAIN_PROFILE`. The hook supersedes electron-builder's built-in notarize path, which would otherwise look for `APPLE_ID` + `APPLE_APP_SPECIFIC_PASSWORD` env vars (we don't use those because they put the password on disk/env; the Keychain profile keeps it in the OS keychain).
 
-To intentionally skip notarization for local testing, unset `APPLE_KEYCHAIN_PROFILE` before building — the hook logs `skipping notarization` and the DMG ships signed-only:
-- Gatekeeper will refuse to open it on first launch on Mac.
-- Users must right-click the app in `/Applications` and choose **Open** the first time.
+To intentionally skip notarization for **local testing only**, unset `APPLE_KEYCHAIN_PROFILE` before building. The hook logs `skipping notarization` and the DMG ships signed-only. **Never ship such a build publicly** in v0.1.1+: the in-app updater on users' machines will fail to apply the next update if a previous release wasn't notarized.
 
 ---
 
@@ -126,15 +141,23 @@ If you have `gh` CLI installed on the Mac:
 
 ```bash
 gh auth login                 # if not already logged in as dtsoden
-gh release upload v0.1.0 \
+gh release upload v0.1.1 \
   release/Hash-Markup-mac-arm64.dmg \
   release/Hash-Markup-mac-x64.dmg \
+  release/Hash-Markup-mac-arm64.zip \
+  release/Hash-Markup-mac-x64.zip \
+  release/latest-mac.yml \
   --clobber
 ```
 
+All five files must be uploaded. Missing the ZIPs or the `latest-mac.yml` will silently break auto-update for Mac users on the previous version (they'll never see the new release because the manifest is missing).
+
 (`--clobber` overwrites if you re-upload during testing.)
 
-The release URL will be `https://github.com/dtsoden/hash-markup/releases/tag/v0.1.0`. After upload, the landing page download links at `hash-markup.davidsoden.com` will start working for Mac users (they already point at `releases/latest/download/Hash-Markup-mac-{arch}.dmg`).
+The release URL will be `https://github.com/dtsoden/hash-markup/releases/tag/v<version>`. After upload:
+
+- Landing page download links at `hash-markup.davidsoden.com` start working for Mac users (they point at `releases/latest/download/Hash-Markup-mac-{arch}.dmg`).
+- Existing installs of Hash Markup on Macs will discover the new version on their next launch via the in-app updater.
 
 ---
 
@@ -144,9 +167,11 @@ The release URL will be `https://github.com/dtsoden/hash-markup/releases/tag/v0.
 
 A typical sequence:
 
-1. Windows side: bump version, commit, tag, push, build Windows EXE, attach to release.
-2. Mac side: `git pull`, build, attach DMGs to the same release tag (Option B above).
-3. Landing page is redeployed by the Windows side as part of the release script. Once both halves are attached, users on the site can download for any platform.
+1. Windows side: bump version, commit, tag, push, build Windows EXE, attach **EXE + `latest.yml`** to release.
+2. Mac side: `git pull`, build, attach **2 DMGs + 2 ZIPs + `latest-mac.yml`** to the same release tag (Option B above).
+3. Landing page is redeployed by the Windows side as part of the release script. Once both halves' artifacts are attached, users on the site can download for any platform AND existing installs auto-update on next launch.
+
+Both manifest files (`latest.yml` and `latest-mac.yml`) must be present on the release for auto-update to function. Missing either one breaks the corresponding platform's updater.
 
 ---
 
@@ -157,6 +182,12 @@ Your Developer ID cert is missing, expired, or revoked. Re-check Keychain Access
 
 **"Notarization failed":**
 Run `xcrun notarytool log <submission-id> --keychain-profile hash-markup-notarytool` to see Apple's specific complaint. Most often it's an entitlement mismatch or an unsigned native binary inside the .app.
+
+**Auto-update silently fails on Mac for v0.1.1+ users:**
+Either (a) the previously-installed release wasn't notarized so Gatekeeper rejects the staple at apply time, or (b) the new release's `latest-mac.yml` or `.zip` files weren't uploaded to the GitHub Release. Verify the Release page on GitHub has all five Mac assets and re-run `xcrun stapler validate "Hash Markup.app"` on the previously-installed version to confirm it has a valid staple.
+
+**`electron-updater` reports `No published versions on GitHub`:**
+The Release exists but the manifest file (`latest-mac.yml`) wasn't uploaded. Re-run `gh release upload` with `--clobber`.
 
 **"You can't open the application" on a tester's machine:**
 The build was signed but not notarized. Flip `build.mac.notarize` to `true` in `package.json` and rebuild.
