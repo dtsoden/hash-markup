@@ -39,10 +39,16 @@ const COLOR = {
   str: '#9ecbff',
 };
 
-// Font stacks: resvg-js resolves against system fonts.
-// macOS has SF Mono + Helvetica Neue built in; this build runs from Mac.
-const FONT_MONO = '"SF Mono", "JetBrains Mono", Menlo, Consolas, monospace';
-const FONT_SANS = '"Helvetica Neue", "SF Pro Display", Helvetica, Arial, sans-serif';
+// Font stacks resolve against the bundled font files in landing/fonts/.
+// loadSystemFonts is disabled at render time so output is deterministic
+// across machines (was the cause of mac/win drift in v0.1.1).
+const FONT_MONO = '"JetBrains Mono", monospace';
+const FONT_SANS = '"Inter", sans-serif';
+const FONT_FILES = [
+  path.join(HERE, 'fonts', 'Inter-Regular.woff2'),
+  path.join(HERE, 'fonts', 'Inter-Bold.woff2'),
+  path.join(HERE, 'fonts', 'JetBrainsMono-Regular.ttf'),
+];
 
 // Helper to keep the SVG legible
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -126,7 +132,7 @@ function svg() {
 
     <!-- Lede / audience (sans, dim) -->
     <text x="0" y="190" font-family='${FONT_SANS}' font-size="21" fill="${COLOR.fgDim}">
-      For developers, writers, and the prompt-writing rest of us.
+      For developers, writers, and the rest of us.
     </text>
 
     <!-- Pills row -->
@@ -203,7 +209,11 @@ function build() {
   const resvg = new Resvg(source, {
     fitTo: { mode: 'width', value: W },
     background: COLOR.bgOuter,
-    font: { loadSystemFonts: true },
+    font: {
+      fontFiles: FONT_FILES,
+      loadSystemFonts: false,
+      defaultFontFamily: 'Inter',
+    },
   });
   fs.writeFileSync(pngOut, resvg.render().asPng());
   console.log(`OG image built (${W}x${H}) -> ${path.relative(ROOT, pngOut)}`);
