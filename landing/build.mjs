@@ -1,9 +1,11 @@
 // Build the landing page. Reads version from root package.json, substitutes
-// {{VERSION}} placeholders into the HTML, copies all assets to dist/.
+// {{VERSION}} placeholders into the HTML, regenerates the social-share
+// OG image, copies all assets to dist/.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const HERE = path.dirname(__filename);
@@ -46,7 +48,12 @@ function copyStatic() {
   copyTree(path.join(SRC, 'assets'), path.join(DIST, 'assets'));
 }
 
+function buildOg() {
+  execSync('node ' + path.join(HERE, 'build-og.mjs'), { stdio: 'inherit' });
+}
+
 rmDist();
+buildOg();
 templateHtml();
 copyStatic();
 
