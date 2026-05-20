@@ -82,7 +82,7 @@ The Windows side cuts the release tag and bumps `package.json` version first. Pu
 ```bash
 git pull origin main          # make sure you're on the release commit
 npm install                   # in case dependencies changed
-APPLE_API_KEYCHAIN_PROFILE=hash-markup-notarytool npm run package:mac
+APPLE_KEYCHAIN_PROFILE=hash-markup-notarytool npm run package:mac
 ```
 
 This produces:
@@ -94,21 +94,21 @@ release/Hash-Markup-mac-x64.dmg
 
 (Plus some build-artifact subdirs you can ignore.)
 
-### What "notarize: true" requires
+### How notarization is wired
 
-If `package.json` -> `build.mac.notarize` is `true`, electron-builder will after signing automatically:
+`package.json` -> `build.afterSign` points at `scripts/notarize.cjs`. After electron-builder signs each .app (once per arch), the hook runs `@electron/notarize` with the Keychain profile named in `APPLE_KEYCHAIN_PROFILE` and waits for Apple's notary service to:
 
-1. Zip the .app and upload it to Apple's notary service via `notarytool`.
-2. Wait for Apple to scan (~1-5 minutes per arch).
-3. Staple the resulting notarization ticket to the .app inside the DMG.
+1. Receive the zipped .app upload via `notarytool`.
+2. Scan it (~1–5 minutes per arch; **first-ever submission on a fresh Apple Developer account can take ~90 min** — be patient, do not cancel).
+3. Issue a ticket that the hook staples to the .app inside the DMG.
 
-The `APPLE_API_KEYCHAIN_PROFILE` env var tells `notarytool` which Keychain profile to use. That's why step 4 in Prerequisites is required.
+The `APPLE_KEYCHAIN_PROFILE` env var tells the hook which Keychain profile to use. That's why step 4 in Prerequisites is required.
 
-If `notarize: false` (current default for early dev):
-- The DMG will be signed but NOT notarized.
+`build.mac.notarize` is intentionally `false` — that disables electron-builder's built-in notarize path (which only honors `APPLE_ID` + `APPLE_APP_SPECIFIC_PASSWORD` env vars and would force the password onto disk/env). The custom hook supersedes it.
+
+To intentionally skip notarization for local testing, unset `APPLE_KEYCHAIN_PROFILE` before building — the hook logs `skipping notarization` and the DMG ships signed-only:
 - Gatekeeper will refuse to open it on first launch on Mac.
-- Users must right-click the app in `/Applications` and choose **Open** the first time. This works but is not great UX.
-- Flip `notarize` to `true` in `package.json` before cutting a non-dev release. Keep it `false` only for local testing.
+- Users must right-click the app in `/Applications` and choose **Open** the first time.
 
 ---
 

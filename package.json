@@ -47,6 +47,7 @@
   "build": {
     "appId": "com.davidsoden.hashmarkup",
     "productName": "Hash Markup",
+    "afterSign": "scripts/notarize.cjs",
     "directories": {
       "output": "release"
     },
