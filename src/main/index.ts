@@ -7,6 +7,7 @@ import { IpcRouter } from './IpcRouter';
 import { RecentFiles } from './RecentFiles';
 import { FolderService } from './FolderService';
 import { PdfExporter } from './PdfExporter';
+import { UpdaterService } from './UpdaterService';
 import { IpcChannels } from '../shared/ipc-channels';
 
 const MD_EXT = /\.(md|markdown|mdown|mkd)$/i;
@@ -27,6 +28,9 @@ class Application {
   private folders = new FolderService();
   private pdf = new PdfExporter();
   private fileManager = new FileManager(this.recent);
+  private updater = new UpdaterService(() =>
+    this.appWindow?.browserWindow ?? null,
+  );
   private menu: MenuBuilder | null = null;
   private pendingMacFiles: string[] = [];
 
@@ -67,8 +71,11 @@ class Application {
       recent: this.recent,
       folders: this.folders,
       pdf: this.pdf,
+      updater: this.updater,
     });
     router.register();
+
+    this.updater.init();
 
     const initial = [...this.filesFromArgv(process.argv), ...this.pendingMacFiles];
     this.pendingMacFiles = [];

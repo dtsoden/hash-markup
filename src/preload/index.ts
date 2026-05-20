@@ -6,6 +6,8 @@ import {
   type SaveFileResult,
   type MenuAction,
   type ZoomStepDirection,
+  type AppVersionInfo,
+  type UpdateState,
 } from '../shared/ipc-channels';
 
 interface FolderNode {
@@ -53,6 +55,19 @@ const api = {
     const listener = (_: unknown, factor: number): void => handler(factor);
     ipcRenderer.on(IpcChannels.ZoomChanged, listener);
     return () => ipcRenderer.removeListener(IpcChannels.ZoomChanged, listener);
+  },
+
+  getAppVersion: (): Promise<AppVersionInfo> =>
+    ipcRenderer.invoke(IpcChannels.AppGetVersion),
+
+  checkForUpdates: (manual: boolean): Promise<void> =>
+    ipcRenderer.invoke(IpcChannels.UpdateCheck, manual),
+  downloadUpdate: (): Promise<void> => ipcRenderer.invoke(IpcChannels.UpdateDownload),
+  installUpdate: (): Promise<void> => ipcRenderer.invoke(IpcChannels.UpdateInstall),
+  onUpdateState: (handler: (state: UpdateState) => void): (() => void) => {
+    const listener = (_: unknown, state: UpdateState): void => handler(state);
+    ipcRenderer.on(IpcChannels.UpdateState, listener);
+    return () => ipcRenderer.removeListener(IpcChannels.UpdateState, listener);
   },
 
   onMenuAction: (handler: (action: MenuAction, payload?: unknown) => void): (() => void) => {

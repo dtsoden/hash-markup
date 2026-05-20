@@ -6,6 +6,8 @@ import { Toolbar } from './components/Toolbar';
 import { TabBar } from './components/TabBar';
 import { Sidebar } from './components/Sidebar';
 import { EmptyState } from './components/EmptyState';
+import { UpdateBanner } from './components/UpdateBanner';
+import { AboutDialog } from './components/AboutDialog';
 import type { MenuAction } from '../../shared/ipc-channels';
 import type { FolderNode } from '../../preload';
 
@@ -26,6 +28,7 @@ export function App() {
   const [sanitize, setSanitize] = useState(true);
   const [themePref, setThemePref] = useState<'auto' | 'light' | 'dark'>('auto');
   const [zoomFactor, setZoomFactor] = useState(1);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [osDark, setOsDark] = useState(() =>
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   );
@@ -147,6 +150,8 @@ export function App() {
         case 'zoom-in': window.api.zoomStep('in'); break;
         case 'zoom-out': window.api.zoomStep('out'); break;
         case 'zoom-reset': window.api.zoomStep('reset'); break;
+        case 'open-about': setAboutOpen(true); break;
+        case 'check-for-updates': window.api.checkForUpdates(true); break;
       }
     });
     const offRecent = window.api.onOpenRecentPath(openPath);
@@ -167,6 +172,8 @@ export function App() {
 
   return (
     <div className={`app ${sidebarOpen ? 'with-sidebar' : ''}`} spellCheck={spellcheck}>
+      <UpdateBanner />
+      <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
       <Toolbar
         mode={mode}
         onNew={() => tabs.createBlank()}

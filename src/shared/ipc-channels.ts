@@ -22,6 +22,11 @@ export const IpcChannels = {
   ZoomGet: 'zoom:get',
   ZoomStep: 'zoom:step',
   ZoomChanged: 'zoom:changed',
+  UpdateCheck: 'update:check',
+  UpdateDownload: 'update:download',
+  UpdateInstall: 'update:install',
+  UpdateState: 'update:state',
+  AppGetVersion: 'app:get-version',
 } as const;
 
 export type IpcChannel = (typeof IpcChannels)[keyof typeof IpcChannels];
@@ -58,9 +63,32 @@ export type MenuAction =
   | 'clear-recent'
   | 'zoom-in'
   | 'zoom-out'
-  | 'zoom-reset';
+  | 'zoom-reset'
+  | 'open-about'
+  | 'check-for-updates';
 
 export type ZoomStepDirection = 'in' | 'out' | 'reset';
+
+export type UpdateState =
+  | { kind: 'idle' }
+  | { kind: 'checking'; manual: boolean }
+  | { kind: 'available'; version: string; releaseNotes?: string }
+  | {
+      kind: 'downloading';
+      percent: number;
+      transferred: number;
+      total: number;
+      bytesPerSecond: number;
+    }
+  | { kind: 'ready'; version: string }
+  | { kind: 'none'; currentVersion: string }
+  | { kind: 'error'; message: string };
+
+export interface AppVersionInfo {
+  version: string;
+  buildHash: string;
+  electronVersion: string;
+}
 
 export const ZOOM_MIN = 0.5;
 export const ZOOM_MAX = 3.0;

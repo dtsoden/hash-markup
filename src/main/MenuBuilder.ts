@@ -25,7 +25,14 @@ export class MenuBuilder {
       template.push({
         label: app.name,
         submenu: [
-          { role: 'about' },
+          {
+            label: `About ${app.name}`,
+            click: () => this.send('open-about'),
+          },
+          {
+            label: 'Check for Updates...',
+            click: () => this.send('check-for-updates'),
+          },
           { type: 'separator' },
           { role: 'services' },
           { type: 'separator' },
@@ -158,14 +165,28 @@ export class MenuBuilder {
         : [{ role: 'minimize' }, { role: 'zoom' }, { role: 'close' }],
     });
 
+    const helpSubmenu: MenuItemConstructorOptions[] = [];
+    if (!isMac) {
+      // On macOS, About + Check for Updates live in the application menu
+      // (Apple menu convention). On Windows/Linux they belong in Help.
+      helpSubmenu.push({
+        label: `About ${app.name}`,
+        click: () => this.send('open-about'),
+      });
+      helpSubmenu.push({
+        label: 'Check for Updates...',
+        click: () => this.send('check-for-updates'),
+      });
+      helpSubmenu.push({ type: 'separator' });
+    }
+    helpSubmenu.push({
+      label: 'Markdown Guide',
+      click: () => shell.openExternal('https://www.markdownguide.org/basic-syntax/'),
+    });
+
     template.push({
       role: 'help',
-      submenu: [
-        {
-          label: 'Markdown Guide',
-          click: () => shell.openExternal('https://www.markdownguide.org/basic-syntax/'),
-        },
-      ],
+      submenu: helpSubmenu,
     });
 
     const menu = Menu.buildFromTemplate(template);

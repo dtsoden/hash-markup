@@ -1,10 +1,11 @@
-import { ipcMain, BrowserWindow, session } from 'electron';
+import { ipcMain, BrowserWindow, app, session } from 'electron';
 import {
   IpcChannels,
   ZOOM_MIN,
   ZOOM_MAX,
   ZOOM_STEP,
   ZOOM_DEFAULT,
+  type AppVersionInfo,
   type SaveFileRequest,
   type ZoomStepDirection,
 } from '../shared/ipc-channels';
@@ -12,12 +13,15 @@ import type { FileManager } from './FileManager';
 import type { RecentFiles } from './RecentFiles';
 import type { FolderService } from './FolderService';
 import type { PdfExporter } from './PdfExporter';
+import type { UpdaterService } from './UpdaterService';
+import { BUILD_HASH } from '../shared/build-info';
 
 export interface IpcServices {
   fileManager: FileManager;
   recent: RecentFiles;
   folders: FolderService;
   pdf: PdfExporter;
+  updater: UpdaterService;
 }
 
 /**
@@ -77,6 +81,22 @@ export class IpcRouter {
       IpcChannels.ExportPdf,
       (_e, payload: { content: string; fileName: string }) =>
         pdf.export(this.getWindow(), payload.content, payload.fileName),
+    );
+
+    const { updater } = this.services;
+    ipcMain.handle(IpcChannels.UpdateCheck, (_e, manual: boolean) =>
+      updater.checkForUpdates(manual),
+    );
+    ipcMain.handle(IpcChannels.UpdateDownload, () => updater.downloadUpdate());
+    ipcMain.handle(IpcChannels.UpdateInstall, () => updater.quitAndInstall());
+
+    ipcMain.handle(
+      IpcChannels.AppGetVersion,
+      (): AppVersionInfo => ({
+        version: app.getVersion(),
+        buildHash: BUILD_HASH,
+        electronVersion: process.versions.electron,
+      }),
     );
 
     ipcMain.handle(IpcChannels.ZoomGet, () => recent.getZoom());

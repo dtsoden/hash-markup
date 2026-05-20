@@ -15,5 +15,6 @@ Thumbs.db
 electron.vite.config.*.mjs
 tools/
 landing/dist/
+src/shared/build-info.ts
 *~lock~
 .~lock.*

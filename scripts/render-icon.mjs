@@ -25,6 +25,8 @@ const targets = [
   { out: path.join(ROOT, 'build', 'icon.png'), size: 1024 },
   // landing page favicon + brand
   { out: path.join(ROOT, 'landing', 'src', 'assets', 'logo.png'), size: 512 },
+  // renderer About dialog
+  { out: path.join(ROOT, 'src', 'renderer', 'src', 'assets', 'icon.png'), size: 256 },
   // root brand (used in README)
   { out: path.join(ROOT, 'Logo.png'), size: 512 },
 ];

@@ -332,3 +332,148 @@ html.theme-dark .tui-host .tui-comment-btn { color: #bbb; }
 }
 .status-bar span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .status-bar span:last-child { margin-left: auto; }
+
+/* ---------------- Update banner ---------------- */
+
+.update-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+  grid-row: 1;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.update-banner--available { border-bottom-color: var(--accent); }
+.update-banner--ready { border-bottom-color: #28c840; }
+.update-banner--error { border-bottom-color: var(--danger); }
+.update-banner__msg {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.update-banner__msg strong { font-weight: 600; }
+.update-banner__bar {
+  flex: 1;
+  min-width: 120px;
+  max-width: 240px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.update-banner__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+.update-banner__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.update-banner__btn {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+.update-banner__btn:hover { filter: brightness(1.06); }
+.update-banner__btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+.update-banner__btn--ghost:hover { background: var(--bg-subtle); }
+
+/* ---------------- About dialog ---------------- */
+
+.about-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: about-fade-in 0.12s ease;
+}
+@keyframes about-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.about-dialog {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px 32px 24px;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+.about-icon {
+  display: block;
+  margin: 0 auto 14px;
+  border-radius: 18%;
+}
+.about-name {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+.about-version {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+  min-height: 1.2em;
+}
+.about-meta {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 4px;
+}
+.about-electron {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0 0 18px;
+  opacity: 0.7;
+}
+.about-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.about-btn {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+.about-btn--primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.about-btn--primary:hover { filter: brightness(1.06); }
+.about-btn--ghost {
+  background: transparent;
+  color: var(--text);
+}
+.about-btn--ghost:hover { background: var(--bg-subtle); }
