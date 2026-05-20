@@ -1,7 +1,7 @@
 {
   "name": "hash-markup",
   "productName": "Hash Markup",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Hash Markup — cross-platform WYSIWYG and markdown editor",
   "main": "out/main/index.js",
   "author": "David Soden",
@@ -122,9 +122,11 @@
       "sign": "./scripts/sign-windows.js"
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "deleteAppDataOnUninstall": false
     }
   }
 }

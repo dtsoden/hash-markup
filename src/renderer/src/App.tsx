@@ -6,7 +6,7 @@ import { Toolbar } from './components/Toolbar';
 import { TabBar } from './components/TabBar';
 import { Sidebar } from './components/Sidebar';
 import { EmptyState } from './components/EmptyState';
-import { UpdateBanner } from './components/UpdateBanner';
+import { UpdateModal } from './components/UpdateModal';
 import { AboutDialog } from './components/AboutDialog';
 import type { MenuAction } from '../../shared/ipc-channels';
 import type { FolderNode } from '../../preload';
@@ -108,6 +108,22 @@ export function App() {
     if (result) doc.markSaved(result.filePath);
   };
 
+  // Save every dirty tab sequentially. Used by the update flow before
+  // restarting. Returns false if the user cancelled any save dialog;
+  // caller should abort the restart in that case.
+  const saveAllDirty = async (): Promise<boolean> => {
+    for (const doc of tabs.tabs) {
+      if (!doc.isDirty) continue;
+      const result = await window.api.saveFile({
+        filePath: doc.filePath,
+        content: doc.content,
+      });
+      if (!result) return false;
+      doc.markSaved(result.filePath);
+    }
+    return true;
+  };
+
   const exportPdf = async (): Promise<void> => {
     const doc = tabs.active;
     if (!doc) return;
@@ -172,7 +188,10 @@ export function App() {
 
   return (
     <div className={`app ${sidebarOpen ? 'with-sidebar' : ''}`} spellCheck={spellcheck}>
-      <UpdateBanner />
+      <UpdateModal
+        dirtyCount={snap.tabs.filter((t) => t.isDirty).length}
+        saveAllDirty={saveAllDirty}
+      />
       <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
       <Toolbar
         mode={mode}
