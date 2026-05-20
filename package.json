@@ -13,7 +13,10 @@
     "package:mac": "npm run build && electron-builder --mac",
     "package:win": "npm run build && electron-builder --win",
     "package:all": "npm run build && electron-builder -mw",
-    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "setup:signing": "node scripts/setup-signing.mjs",
+    "landing:build": "node landing/build.mjs",
+    "landing:deploy": "npm run landing:build && wrangler pages deploy landing/dist --project-name hash-markup --branch main"
   },
   "dependencies": {
     "@toast-ui/editor": "^3.2.2",
@@ -71,6 +74,7 @@
       "target": [
         { "target": "dmg", "arch": ["x64", "arm64"] }
       ],
+      "artifactName": "Hash-Markup-mac-${arch}.${ext}",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -81,7 +85,9 @@
       "icon": "build/icon.png",
       "target": [
         { "target": "nsis", "arch": ["x64"] }
-      ]
+      ],
+      "artifactName": "Hash-Markup-Setup-Windows.${ext}",
+      "sign": "./scripts/sign-windows.js"
     },
     "nsis": {
       "oneClick": false,

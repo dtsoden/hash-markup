@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hash Markup — Markdown that works the way you think.</title>
+<meta name="description" content="A cross-platform desktop Markdown editor with WYSIWYG and raw modes. Instant toggle. Built for keyboard people. MIT-licensed and open source." />
+<meta property="og:title" content="Hash Markup" />
+<meta property="og:description" content="Markdown that works the way you think. WYSIWYG + raw, instant toggle. For Mac and Windows." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://hash-markup.davidsoden.com/" />
+<meta property="og:image" content="https://hash-markup.davidsoden.com/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" type="image/png" href="assets/logo.png" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#top" aria-label="Hash Markup">
+    <img src="assets/logo.png" alt="" width="28" height="28" />
+    <span class="brand-name">Hash Markup</span>
+    <span class="version-badge" title="Current release">v{{VERSION}}</span>
+  </a>
+  <nav class="topnav">
+    <a href="#features">Features</a>
+    <a href="#download">Download</a>
+    <a href="https://github.com/dtsoden/hash-markup" rel="noopener" target="_blank">Source <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>Markdown that works <br />the way you think.</h1>
+      <p class="lede">
+        WYSIWYG and raw markdown. Instant toggle. Built for keyboard people.
+        No subscriptions. No telemetry. Just an editor.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" id="primary-download" href="#download" data-fallback-href="#download">
+          Download
+        </a>
+        <a class="btn btn-ghost" href="#download">See all downloads</a>
+      </div>
+      <p class="cta-sub" id="primary-download-sub">Pick your platform below.</p>
+    </div>
+    <figure class="hero-shot" aria-hidden="true">
+      <div class="hero-shot-mock">
+        <div class="hero-shot-titlebar">
+          <span class="dot dot-r"></span>
+          <span class="dot dot-y"></span>
+          <span class="dot dot-g"></span>
+          <span class="hero-shot-title">README.md</span>
+        </div>
+        <div class="hero-shot-body">
+<pre><span class="hash">#</span> <span class="h1">Hash Markup</span>
+
+Markdown that works the way you <em>think</em>.
+
+<span class="hash">##</span> Why
+- <span class="check">[x]</span> WYSIWYG + raw
+- <span class="check">[x]</span> Dark mode
+- <span class="check">[x]</span> PDF export
+- <span class="check">[ ]</span> Subscriptions
+
+<span class="hash">```</span>js
+<span class="kw">const</span> editor = <span class="kw">new</span> HashMarkup();
+editor.<span class="fn">open</span>(<span class="str">'thoughts.md'</span>);
+<span class="hash">```</span></pre>
+        </div>
+      </div>
+    </figure>
+  </section>
+
+  <section class="features" id="features">
+    <h2 class="section-title">Features</h2>
+    <ul class="feature-grid">
+      <li>
+        <h3>WYSIWYG <span class="kbd">⌘/Ctrl + /</span> Raw</h3>
+        <p>Switch modes without losing your place. Content stays in sync. Toolbar follows the mode.</p>
+      </li>
+      <li>
+        <h3>Folder workspace</h3>
+        <p>Open a directory; the sidebar becomes a fast file browser. Tabs across the top, recent files in the menu.</p>
+      </li>
+      <li>
+        <h3>Export to PDF</h3>
+        <p>One shortcut, native print pipeline, sane defaults. No headless browser dance.</p>
+      </li>
+      <li>
+        <h3>Theming</h3>
+        <p>Light, dark, or follow the system. Persists between launches. Document and chrome match.</p>
+      </li>
+      <li>
+        <h3>Zoom</h3>
+        <p>⌘/Ctrl + scroll, or use the View menu. Levels from 50% to 300%, saved across sessions.</p>
+      </li>
+      <li>
+        <h3>Native menus + shortcuts</h3>
+        <p>New, Open, Save, Save As, Close, all wired to the keys you already know. Mac and Windows look like they should.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="trust">
+    <h2 class="section-title">Build it yourself</h2>
+    <p>
+      Hash Markup is <a href="https://github.com/dtsoden/hash-markup" target="_blank" rel="noopener">MIT-licensed</a>
+      and the source is public. If you don't trust binaries from the internet, clone the repo and build your own copy. Instructions are in the README.
+    </p>
+    <p class="aside">
+      Heads up: early Windows releases are signed under a new publisher identity (David Soden) that hasn't accumulated SmartScreen reputation yet. The first download may show a "Windows protected your PC" warning. Click <em>More info</em> &rarr; <em>Run anyway</em>. Reputation builds with downloads over time.
+    </p>
+  </section>
+
+  <section class="downloads" id="download">
+    <h2 class="section-title">Download v{{VERSION}}</h2>
+    <ul class="dl-grid">
+      <li class="dl-card" data-os="mac">
+        <div class="dl-icon" aria-hidden="true">🍎</div>
+        <h3>macOS · Apple Silicon</h3>
+        <p>For M1, M2, M3, M4 Macs.</p>
+        <a class="btn btn-primary" href="https://github.com/dtsoden/hash-markup/releases/latest/download/Hash-Markup-mac-arm64.dmg">Download .dmg</a>
+        <p class="dl-meta">Hash-Markup-mac-arm64.dmg</p>
+      </li>
+      <li class="dl-card" data-os="mac-x64">
+        <div class="dl-icon" aria-hidden="true">🍎</div>
+        <h3>macOS · Intel</h3>
+        <p>For older Intel-based Macs.</p>
+        <a class="btn btn-primary" href="https://github.com/dtsoden/hash-markup/releases/latest/download/Hash-Markup-mac-x64.dmg">Download .dmg</a>
+        <p class="dl-meta">Hash-Markup-mac-x64.dmg</p>
+      </li>
+      <li class="dl-card" data-os="windows">
+        <div class="dl-icon" aria-hidden="true">🪟</div>
+        <h3>Windows · 64-bit</h3>
+        <p>For Windows 10 and 11 on Intel / AMD.</p>
+        <a class="btn btn-primary" href="https://github.com/dtsoden/hash-markup/releases/latest/download/Hash-Markup-Setup-Windows.exe">Download .exe</a>
+        <p class="dl-meta">Hash-Markup-Setup-Windows.exe</p>
+      </li>
+    </ul>
+    <p class="dl-footnote">
+      Mac builds are unsigned at this stage. On first launch, right-click the app and choose <em>Open</em> to bypass Gatekeeper once.
+      Signing and notarization are on the roadmap.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <span>© <span id="year">2026</span> David Soden</span>
+  <span>MIT licensed</span>
+  <span>v{{VERSION}}</span>
+  <a href="https://github.com/dtsoden/hash-markup" target="_blank" rel="noopener">Source on GitHub ↗</a>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

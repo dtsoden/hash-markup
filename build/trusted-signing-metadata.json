@@ -1,0 +1,6 @@
+{
+  "Endpoint": "https://cus.codesigning.azure.net/",
+  "CodeSigningAccountName": "dse-codesigning",
+  "CertificateProfileName": "resume-tailor",
+  "CorrelationId": "hash-markup"
+}
