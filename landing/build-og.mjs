@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
 import { Resvg } from '@resvg/resvg-js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -194,7 +195,8 @@ function svg() {
 
 function build() {
   const outDir = path.join(HERE, 'src', 'assets');
-  const out = path.join(outDir, 'og.png');
+  const pngOut = path.join(outDir, 'og.png');
+  const jpgOut = path.join(outDir, 'og.jpg');
   fs.mkdirSync(outDir, { recursive: true });
 
   const source = svg();
@@ -203,8 +205,18 @@ function build() {
     background: COLOR.bgOuter,
     font: { loadSystemFonts: true },
   });
-  fs.writeFileSync(out, resvg.render().asPng());
-  console.log(`OG image built (${W}x${H}) -> ${path.relative(ROOT, out)}`);
+  fs.writeFileSync(pngOut, resvg.render().asPng());
+  console.log(`OG image built (${W}x${H}) -> ${path.relative(ROOT, pngOut)}`);
+
+  // LinkedIn's image processor is unreliable with PNGs that have an alpha
+  // channel, so we also emit a JPEG and point og:image at that. sips is the
+  // built-in macOS converter (no extra deps); skipped on other platforms.
+  if (process.platform === 'darwin') {
+    execSync(`sips -s format jpeg -s formatOptions 88 "${pngOut}" --out "${jpgOut}"`, { stdio: 'pipe' });
+    console.log(`OG JPEG built -> ${path.relative(ROOT, jpgOut)}`);
+  } else {
+    console.warn('Skipping og.jpg (sips is macOS-only). The PNG is built but LinkedIn may not render it.');
+  }
 }
 
 build();
