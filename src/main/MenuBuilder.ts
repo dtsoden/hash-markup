@@ -183,6 +183,15 @@ export class MenuBuilder {
       label: 'Markdown Guide',
       click: () => shell.openExternal('https://www.markdownguide.org/basic-syntax/'),
     });
+    helpSubmenu.push({ type: 'separator' });
+    helpSubmenu.push({
+      label: 'Hash Markup Website',
+      click: () => shell.openExternal('https://hash-markup.davidsoden.com'),
+    });
+    helpSubmenu.push({
+      label: 'About the Developer',
+      click: () => shell.openExternal('https://davidsoden.com'),
+    });
 
     template.push({
       role: 'help',
