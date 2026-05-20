@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "setup:signing": "node scripts/setup-signing.mjs",
     "landing:build": "node landing/build.mjs",
-    "landing:deploy": "npm run landing:build && wrangler pages deploy landing/dist --project-name hash-markup --branch main"
+    "landing:deploy": "npm run landing:build && npx wrangler pages deploy landing/dist --project-name hash-markup --branch main"
   },
   "dependencies": {
     "@toast-ui/editor": "^3.2.2",
