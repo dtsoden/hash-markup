@@ -34,6 +34,16 @@ interface Props {
  *   - uml                       — ```uml fences render as PlantUML diagrams
  *   - chart                     — ```chart fences render as Toast UI charts
  */
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function looksLikeMarkdown(s: string): boolean {
   return (
     /(^|\n)\s{0,3}#{1,6}\s/.test(s) ||
@@ -78,6 +88,56 @@ export function MarkdownEditor({ initialValue, mode, dark, sanitize, onChange }:
       plugins.push(uml, chart);
     }
 
+    // Toast UI's CustomHTMLRenderer type lives in a subpath that isn't
+    // re-exported from the top-level package, so we type the params loosely.
+    // The runtime contract is what matters here.
+    type MdNodeLike = {
+      type: string;
+      prev: MdNodeLike | null;
+      level?: number;
+    };
+    type ConvCtx = {
+      entering: boolean;
+      getChildrenText: (n: unknown) => string;
+      origin?: () => unknown;
+    };
+    type Token = { type?: string; attributes?: Record<string, unknown> };
+
+    // Walks preceding sibling chain to count earlier same-slug headings.
+    // Stateless: works correctly no matter how many times the editor
+    // re-renders (which it does on every keystroke for the preview pane).
+    const countPriorMatches = (
+      node: MdNodeLike,
+      base: string,
+      getText: (n: unknown) => string,
+    ): number => {
+      let n = 0;
+      let cur: MdNodeLike | null = node.prev;
+      while (cur) {
+        if (cur.type === 'heading' && slugify(getText(cur).trim()) === base) n++;
+        cur = cur.prev;
+      }
+      return n;
+    };
+
+    const customHTMLRenderer = {
+      heading(node: MdNodeLike, ctx: ConvCtx) {
+        if (!ctx.entering) return ctx.origin ? ctx.origin() : null;
+        const text = ctx.getChildrenText(node).trim();
+        if (!text) return ctx.origin ? ctx.origin() : null;
+        const base = slugify(text);
+        if (!base) return ctx.origin ? ctx.origin() : null;
+        const count = countPriorMatches(node, base, ctx.getChildrenText);
+        const id = count === 0 ? base : `${base}-${count}`;
+        const result = ctx.origin ? ctx.origin() : null;
+        const token = (Array.isArray(result) ? result[0] : result) as Token | null;
+        if (token && token.type === 'openTag') {
+          token.attributes = { ...(token.attributes ?? {}), id };
+        }
+        return result;
+      },
+    };
+
     const editor = new Editor({
       el: hostRef.current,
       height: '100%',
@@ -88,6 +148,7 @@ export function MarkdownEditor({ initialValue, mode, dark, sanitize, onChange }:
       theme: dark ? 'dark' : 'default',
       hideModeSwitch: true,
       plugins,
+      customHTMLRenderer,
       // When sanitize is off we pass HTML through unchanged — required for
       // color-syntax, chart, and UML to render. With it on, Toast UI's
       // default (DOMPurify-based) sanitizer runs and strips inline styles.
@@ -107,6 +168,12 @@ export function MarkdownEditor({ initialValue, mode, dark, sanitize, onChange }:
       },
     });
     editorRef.current = editor;
+
+    // Dev-only debug handle. Lets you open DevTools (F12) and run
+    // `__editor.getHTML()` to inspect the converted HTML output.
+    if (import.meta.env.DEV) {
+      (window as unknown as { __editor?: unknown }).__editor = editor;
+    }
 
     // Auto-parse markdown pasted into WYSIWYG mode. Without this, raw markdown
     // text (including HTML comments like <!-- ... -->) pastes as literal text
