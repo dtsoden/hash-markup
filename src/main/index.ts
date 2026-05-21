@@ -8,6 +8,7 @@ import { RecentFiles } from './RecentFiles';
 import { FolderService } from './FolderService';
 import { PdfExporter } from './PdfExporter';
 import { UpdaterService } from './UpdaterService';
+import { ContextMenuBuilder } from './ContextMenuBuilder';
 import { IpcChannels } from '../shared/ipc-channels';
 
 const MD_EXT = /\.(md|markdown|mdown|mkd)$/i;
@@ -31,6 +32,7 @@ class Application {
   private updater = new UpdaterService(() =>
     this.appWindow?.browserWindow ?? null,
   );
+  private contextMenu = new ContextMenuBuilder();
   private menu: MenuBuilder | null = null;
   private pendingMacFiles: string[] = [];
 
@@ -111,6 +113,7 @@ class Application {
     }
     this.appWindow = new AppWindow();
     const bw = this.appWindow.create();
+    this.contextMenu.attach(bw);
     bw.on('closed', () => {
       this.appWindow = null;
     });
