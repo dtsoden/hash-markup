@@ -135,5 +135,49 @@ export function MarkdownEditor({ initialValue, mode, dark, sanitize, onChange }:
     editorRef.current?.changeMode(mode, true);
   }, [mode]);
 
+  // Disable browser spell-check on code regions in both modes. The
+  // Chromium spellchecker honours spellcheck="false" set on a descendant
+  // of an editable element. We tag:
+  //   - WYSIWYG: <pre> and <code> elements (block + inline code)
+  //   - Raw (CodeMirror): token spans for inline code and fenced blocks
+  // Re-runs on DOM mutations (debounced via rAF) so freshly-rendered
+  // code regions get tagged as the user types.
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+
+    let scheduled = false;
+    const tag = (root: HTMLElement): void => {
+      // WYSIWYG block + inline code
+      root.querySelectorAll('pre, code').forEach((el) => {
+        if (el.getAttribute('spellcheck') !== 'false') {
+          el.setAttribute('spellcheck', 'false');
+        }
+      });
+      // Toast UI 3.x raw-mode tokens. Inline code is .toastui-editor-md-code,
+      // fenced blocks are .toastui-editor-md-code-block (and its line-bg
+      // variants). [class*="md-code"] catches all three with one selector.
+      root.querySelectorAll('[class*="md-code"]').forEach((el) => {
+        if (el.getAttribute('spellcheck') !== 'false') {
+          el.setAttribute('spellcheck', 'false');
+        }
+      });
+    };
+
+    const schedule = (): void => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        scheduled = false;
+        if (host.isConnected) tag(host);
+      });
+    };
+
+    tag(host);
+    const observer = new MutationObserver(schedule);
+    observer.observe(host, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
   return <div ref={hostRef} className="tui-host" />;
 }
