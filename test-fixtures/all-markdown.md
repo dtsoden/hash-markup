@@ -1,7 +1,8 @@
 <!--
-  This is an HTML comment. It should NOT appear in the WYSIWYG preview.
-  If you see this sentence on screen outside of Markdown mode, rendering
-  is broken.
+  Hash Markup feature test document. Cover everything the editor is
+  expected to render in WYSIWYG mode AND keep intact in Markdown mode.
+  HTML comments should be invisible in WYSIWYG; this whole block
+  should not appear on screen there.
 -->
 
 # H1 Heading
@@ -23,16 +24,22 @@
 This is a plain paragraph with **bold**, *italic*, ***bold italic***,
 ~~strikethrough~~, and `inline code`.
 
-A link: [OpenAI](https://openai.com). An autolink: <https://example.com>.
-
 A line break via two spaces  
 appears here.
 
+## Links
+
+- Inline link: [OpenAI](https://openai.com)
+- Autolink (angle brackets): <https://example.com>
+- Bare URL autolink (GFM): https://github.com/dtsoden/hash-markup
+- Link with title: [Hover me](https://example.com "Tooltip text")
+
 ## Blockquote
 
-> "The best way to predict the future is to invent it." — Alan Kay
+> "The best way to predict the future is to invent it." Alan Kay
 >
-> Blockquotes can span multiple lines and contain **formatting**.
+> Blockquotes can span multiple lines and contain **formatting**, `code`,
+> and even other blocks.
 
 ## Lists
 
@@ -55,8 +62,8 @@ appears here.
 ### Task list
 
 - [x] Write the editor
-- [x] Wire Toast UI
-- [ ] Ship v1
+- [x] Live-preview WYSIWYG
+- [ ] Ship v0.2.0
 - [ ] Celebrate
 
 ## Table
@@ -77,7 +84,7 @@ Below the rule is another paragraph.
 
 ## Code
 
-Inline: use `editor.setMarkdown(...)` to replace.
+Inline: use `editor.getMarkdown()` to retrieve.
 
 Fenced (no language):
 
@@ -112,43 +119,49 @@ def fib(n: int) -> int:
     return a
 ```
 
+Fenced Bash:
+
+```bash
+#!/usr/bin/env bash
+for f in *.md; do
+  wc -l "$f"
+done
+```
+
 ## Images
 
-![Tiny pixel](https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/120px-Placeholder_view_vector.svg.png)
+![Placeholder image](https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/120px-Placeholder_view_vector.svg.png)
 
-## HTML comments (should be invisible in WYSIWYG)
+## Emoji shortcodes
 
-<!-- secret note: delete before publishing -->
+Inline emojis render via shortcode while the markdown source keeps the
+text intact: :smile: :heart: :fire: :rocket: :tada: :thumbsup: :eyes: :pray:
+
+A whole sentence with emojis :wave: hello :coffee: morning :pizza: lunch.
+
+Inside `code blocks :smile: should NOT render` and stay as text.
+
+## HTML comments (invisible in WYSIWYG)
+
+<!-- secret note: should not appear on screen -->
 
 Above this line is a comment that should NOT render.
 
-## UML (plugin)
+## HTML inline (only when sanitizer is OFF)
 
-```uml
-@startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-@enduml
-```
+<span>plain inline HTML</span>
 
-## Chart (plugin)
+## Heading IDs (auto-generated)
 
-```chart
-,category1,category2
-Jan,21,23
-Feb,31,17
-Mar,9,40
+The headings above each get an `id` attribute auto-derived from the
+heading text (e.g. `## My Section` -> `id="my-section"`). Useful for
+deep-linking anchors in exported HTML and PDF output.
 
-type: column
-title: Monthly Revenue
-x.title: Month
-y.title: Amount
-```
+## Disabling auto-URL
 
-## Color (plugin)
-
-<span style="color: #e11d48">Red text</span> and
-<span style="color: #0ea5e9">blue text</span> via the color picker.
+Wrap the URL in backticks to keep it as plain text without auto-linking:
+`https://example.com`. Versus the bare form: https://example.com (which
+becomes a link).
 
 ## Nested / combined
 
@@ -159,7 +172,7 @@ y.title: Amount
 >   - nested
 > - three
 >
-> …and some `code` in it.
+> ...and some `code` in it.
 
 ## Escaping
 

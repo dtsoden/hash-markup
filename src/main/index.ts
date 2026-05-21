@@ -1,5 +1,6 @@
 import { app, BrowserWindow, session } from 'electron';
-import { electronApp, optimizer } from '@electron-toolkit/utils';
+import { electronApp, optimizer, is } from '@electron-toolkit/utils';
+import path from 'node:path';
 import { AppWindow } from './AppWindow';
 import { MenuBuilder } from './MenuBuilder';
 import { FileManager } from './FileManager';
@@ -80,6 +81,13 @@ class Application {
     this.updater.init();
 
     const initial = [...this.filesFromArgv(process.argv), ...this.pendingMacFiles];
+    // Dev convenience: if nothing else was requested, auto-open the
+    // feature-coverage fixture so manual testing has something to look
+    // at. Skipped in packaged builds.
+    if (is.dev && initial.length === 0) {
+      const fixture = path.resolve(__dirname, '..', '..', 'test-fixtures', 'all-markdown.md');
+      initial.push(fixture);
+    }
     this.pendingMacFiles = [];
 
     const bw = this.getOrCreateWindow();

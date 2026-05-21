@@ -211,47 +211,151 @@ html, body, #root {
   border-color: var(--accent);
 }
 
-.tui-host { height: 100%; width: 100%; }
-.tui-host .toastui-editor-defaultUI { border: none; height: 100%; }
-.tui-host .toastui-editor-defaultUI-toolbar {
+.md-editor {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.md-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
   background: var(--bg-subtle);
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-
-/* Custom toolbar button — mirrors Toast UI's native button geometry:
-   Toast UI wraps custom items in `.toastui-editor-toolbar-item-wrapper`
-   (margin 7px 5px, height 32px) and the button itself is 28px tall with
-   a 2px radius, so it centers inside that 32px line. */
-.tui-host .tui-comment-btn {
-  box-sizing: border-box;
-  display: inline-block;
-  width: 32px;
-  height: 28px;
-  padding: 0;
-  margin: 0;
+.md-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 44px;
+  padding: 0 12px;
   background: transparent;
-  border: none;
-  border-radius: 2px;
+  border: 1px solid transparent;
+  border-radius: 6px;
   cursor: pointer;
+  color: var(--text);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 28px;
-  text-align: center;
-  color: #555;
-  vertical-align: top;
+  font-size: 18px;
+  font-weight: 600;
+  user-select: none;
 }
-html.theme-dark .tui-host .tui-comment-btn { color: #bbb; }
-.tui-host .tui-comment-btn:hover { background: rgba(127, 127, 127, 0.12); }
-.tui-host .tui-comment-btn:active { background: rgba(127, 127, 127, 0.22); }
+.md-toolbar button:hover:not(:disabled) {
+  background: rgba(127, 127, 127, 0.15);
+  border-color: var(--border);
+}
+.md-toolbar button:disabled { opacity: 0.4; cursor: default; }
+.md-toolbar__sep {
+  width: 1px;
+  height: 26px;
+  background: var(--border);
+  margin: 0 6px;
+}
+.md-emoji-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 150;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  padding: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  width: 320px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.md-emoji-picker button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  height: 36px;
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.md-emoji-picker button:hover {
+  background: rgba(127, 127, 127, 0.15);
+}
+.md-editor__wysiwyg,
+.md-editor__raw {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
 
-/* Kill Toast UI's GitHub-style underline on H1/H2 — reads as an HR. */
-.tui-host .toastui-editor-contents h1,
-.tui-host .toastui-editor-contents h2,
-.tui-host .toastui-editor h1,
-.tui-host .toastui-editor h2 {
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
+/* Milkdown live-preview surface */
+.md-editor__wysiwyg .milkdown {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100%;
+}
+.md-editor__wysiwyg .ProseMirror {
+  padding: 16px 24px;
+  outline: none;
+  min-height: 100%;
+}
+.md-editor__wysiwyg .ProseMirror h1,
+.md-editor__wysiwyg .ProseMirror h2 {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.md-editor__wysiwyg .ProseMirror pre,
+.md-editor__wysiwyg .ProseMirror code {
+  background: var(--bg-subtle);
+}
+/* HTML comments in WYSIWYG: rendered dim/italic so the user can see them
+   exist (and avoid accidentally deleting them) but they don't visually
+   compete with content. Truly invisible comments would need a custom
+   node implementation that prevents cursor entry / merge. */
+.md-editor__wysiwyg .ProseMirror span[data-type="html"][data-value^="<!--"] {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.85em;
+  opacity: 0.6;
+  white-space: pre-wrap;
+}
+
+/* Emoji shortcode decoration: hide the :shortcode: text and show the
+   emoji glyph in its place via a ::before pseudo. Source stays as text. */
+.md-editor__wysiwyg .ProseMirror .md-emoji-shortcode {
+  font-size: 0;
+  color: transparent;
+}
+.md-editor__wysiwyg .ProseMirror .md-emoji-shortcode::before {
+  content: attr(data-emoji);
+  font-size: 1rem;
+  color: initial;
+  letter-spacing: normal;
+}
+
+/* CodeMirror raw markdown surface */
+.md-editor__raw {
+  background: var(--bg);
+}
+.md-editor__raw .cm-editor {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+.md-editor__raw .cm-editor.cm-focused { outline: none; }
+.md-editor__raw .cm-scroller {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  line-height: 1.55;
 }
 
 .sidebar {
