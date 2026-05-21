@@ -148,6 +148,9 @@ export function MarkdownEditor({ initialValue, mode, dark, sanitize, onChange }:
       theme: dark ? 'dark' : 'default',
       hideModeSwitch: true,
       plugins,
+      // Auto-link bare URLs (GFM extension). Users can disable on a
+      // per-URL basis by wrapping in backticks (-> inline code).
+      extendedAutolinks: true,
       customHTMLRenderer,
       // When sanitize is off we pass HTML through unchanged — required for
       // color-syntax, chart, and UML to render. With it on, Toast UI's
