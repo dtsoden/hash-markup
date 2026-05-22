@@ -1,7 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { TabManager } from './services/TabManager';
 import { useTabs } from './hooks/useTabs';
-import { MarkdownEditor, type EditorMode } from './components/MarkdownEditor';
+import {
+  MarkdownEditor,
+  findApi,
+  type EditorMode,
+  type FindHandles,
+} from './components/MarkdownEditor';
 import { Toolbar } from './components/Toolbar';
 import { TabBar } from './components/TabBar';
 import { Sidebar } from './components/Sidebar';
@@ -29,6 +34,10 @@ export function App() {
   const [themePref, setThemePref] = useState<'auto' | 'light' | 'dark'>('auto');
   const [zoomFactor, setZoomFactor] = useState(1);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [findOpen, setFindOpen] = useState(false);
+  const [findQuery, setFindQuery] = useState('');
+  const findInputRef = useRef<HTMLInputElement>(null);
+  const editorHandlesRef = useRef<FindHandles>({ milkdown: null, codemirror: null });
   const [osDark, setOsDark] = useState(() =>
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   );
@@ -182,6 +191,36 @@ export function App() {
     document.title = `${dirty}${name} — Hash Markup`;
   }, [snap.active, snap.active?.fileName, snap.active?.isDirty]);
 
+  // Ctrl/Cmd + F opens find bar; Escape closes it.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        setFindOpen(true);
+      } else if (e.key === 'Escape' && findOpen) {
+        setFindOpen(false);
+        setFindQuery('');
+        findApi.setQuery(editorHandlesRef.current, '');
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [findOpen]);
+
+  // Auto-focus the input every time the find bar opens.
+  useEffect(() => {
+    if (findOpen) findInputRef.current?.focus();
+  }, [findOpen]);
+
+  // Live find-as-you-type via the in-doc ProseMirror plugin (NOT
+  // Chromium's findInPage — that one steals focus to the matched word
+  // on every call and made the input unusable). Our plugin just
+  // updates decoration state, so focus stays in the find input.
+  useEffect(() => {
+    if (!findOpen) return;
+    findApi.setQuery(editorHandlesRef.current, findQuery);
+  }, [findQuery, findOpen]);
+
   const handleEditorChange = (next: string): void => {
     snap.active?.setContent(next);
   };
@@ -193,6 +232,52 @@ export function App() {
         saveAllDirty={saveAllDirty}
       />
       <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
+      {findOpen && (
+        <div className="find-bar" role="search">
+          <input
+            ref={findInputRef}
+            type="text"
+            autoFocus
+            placeholder="Find in document"
+            value={findQuery}
+            onChange={(e) => setFindQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (!findQuery) return;
+                findApi.advance(editorHandlesRef.current, e.shiftKey ? -1 : 1);
+              }
+            }}
+          />
+          <button
+            type="button"
+            title="Previous (Shift+Enter)"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => findApi.advance(editorHandlesRef.current, -1)}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            title="Next (Enter)"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => findApi.advance(editorHandlesRef.current, 1)}
+          >
+            ↓
+          </button>
+          <button
+            type="button"
+            title="Close (Esc)"
+            onClick={() => {
+              setFindOpen(false);
+              setFindQuery('');
+              findApi.setQuery(editorHandlesRef.current, '');
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <Toolbar
         mode={mode}
         onNew={() => tabs.createBlank()}
@@ -227,6 +312,7 @@ export function App() {
             dark={isDark}
             sanitize={sanitize}
             onChange={handleEditorChange}
+            onEditorReady={(handles) => { editorHandlesRef.current = handles; }}
           />
         ) : (
           <EmptyState onNew={() => tabs.createBlank()} onOpen={openDialog} />

@@ -27,6 +27,9 @@ export const IpcChannels = {
   UpdateInstall: 'update:install',
   UpdateState: 'update:state',
   AppGetVersion: 'app:get-version',
+  FindStart: 'find:start',
+  FindStop: 'find:stop',
+  OpenExternal: 'app:open-external',
 } as const;
 
 export type IpcChannel = (typeof IpcChannels)[keyof typeof IpcChannels];

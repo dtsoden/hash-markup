@@ -60,6 +60,15 @@ const api = {
   getAppVersion: (): Promise<AppVersionInfo> =>
     ipcRenderer.invoke(IpcChannels.AppGetVersion),
 
+  findInPage: (
+    query: string,
+    options?: { forward?: boolean; findNext?: boolean },
+  ): Promise<void> => ipcRenderer.invoke(IpcChannels.FindStart, query, options),
+  stopFindInPage: (): Promise<void> => ipcRenderer.invoke(IpcChannels.FindStop),
+
+  openExternal: (url: string): Promise<void> =>
+    ipcRenderer.invoke(IpcChannels.OpenExternal, url),
+
   checkForUpdates: (manual: boolean): Promise<void> =>
     ipcRenderer.invoke(IpcChannels.UpdateCheck, manual),
   downloadUpdate: (): Promise<void> => ipcRenderer.invoke(IpcChannels.UpdateDownload),

@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, app, session } from 'electron';
+import { ipcMain, BrowserWindow, app, session, shell } from 'electron';
 import {
   IpcChannels,
   ZOOM_MIN,
@@ -98,6 +98,36 @@ export class IpcRouter {
         electronVersion: process.versions.electron,
       }),
     );
+
+    // Find-in-page using Chromium's built-in highlight, scoped to the
+    // current window's webContents. Works across WYSIWYG and Raw mode
+    // since both are rendered DOM.
+    ipcMain.handle(
+      IpcChannels.FindStart,
+      (_e, query: string, options?: { forward?: boolean; findNext?: boolean }) => {
+        const w = this.getWindow();
+        if (!w || w.isDestroyed() || !query) return;
+        w.webContents.findInPage(query, {
+          forward: options?.forward ?? true,
+          findNext: options?.findNext ?? false,
+          matchCase: false,
+        });
+      },
+    );
+    ipcMain.handle(IpcChannels.FindStop, () => {
+      const w = this.getWindow();
+      if (!w || w.isDestroyed()) return;
+      w.webContents.stopFindInPage('clearSelection');
+    });
+
+    // Open a link in the user's default browser (anchor click hook in the
+    // editor calls this so URLs go to Chrome/Safari/etc., not the app).
+    ipcMain.handle(IpcChannels.OpenExternal, (_e, url: string) => {
+      if (!url) return;
+      if (/^(https?|mailto):/i.test(url)) {
+        void shell.openExternal(url);
+      }
+    });
 
     ipcMain.handle(IpcChannels.ZoomGet, () => recent.getZoom());
     ipcMain.handle(IpcChannels.ZoomStep, (_e, direction: ZoomStepDirection) => {

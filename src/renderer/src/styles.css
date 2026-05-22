@@ -257,6 +257,247 @@ html, body, #root {
   background: var(--border);
   margin: 0 6px;
 }
+/* In-doc find match highlights. Applies to BOTH the Milkdown
+   (WYSIWYG) editor and the CodeMirror (raw markdown) editor. */
+.md-editor .md-find-match {
+  background-color: #fff59d;
+  color: #1a1a1a;
+  border-radius: 2px;
+}
+.md-editor .md-find-match--current {
+  background-color: #ff8a65 !important;
+  color: #1a1a1a !important;
+  outline: 1px solid #ff5722;
+}
+html.theme-dark .md-editor .md-find-match {
+  background-color: #ffd54f;
+  color: #1a1a1a;
+}
+html.theme-dark .md-editor .md-find-match--current {
+  background-color: #ff7043 !important;
+  color: #1a1a1a !important;
+}
+
+.find-bar {
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+.find-bar input {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  width: 240px;
+}
+.find-bar input:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+.find-bar button {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 14px;
+}
+.find-bar button:hover { background: var(--bg-subtle); border-color: var(--border); }
+
+.md-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.md-modal {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px 18px;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.md-modal__title {
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.md-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.md-modal__field input {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+.md-modal__field input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-color: var(--accent);
+}
+.md-modal__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.md-modal__btn {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+}
+.md-modal__btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.md-modal__btn--primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.md-modal__btn--primary:hover:not(:disabled) { filter: brightness(1.08); }
+.md-modal__btn--ghost:hover { background: var(--bg-subtle); }
+
+.md-toolbar__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px !important;
+  height: 44px;
+  padding: 0 4px !important;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+}
+.md-toolbar__chevron:hover:not(:disabled) { background: rgba(127, 127, 127, 0.15); border-color: var(--border); }
+.md-toolbar__chevron:disabled { opacity: 0.3; cursor: default; }
+
+.md-table-context-menu {
+  position: fixed;
+  z-index: 280;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  padding: 6px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.md-table-context-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.md-table-context-menu button:hover { background: var(--bg-subtle); }
+.md-table-context-menu hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+.md-table-tools {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 170;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 6px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.md-table-tools button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.md-table-tools button:hover { background: var(--bg-subtle); }
+.md-table-tools hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+.md-table-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 160;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 10px;
+}
+.md-table-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(10, 18px);
+  grid-auto-rows: 18px;
+  gap: 2px;
+}
+.md-table-picker__cell {
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.md-table-picker__cell--lit {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.md-table-picker__label {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  min-height: 1.2em;
+}
+
 .md-emoji-picker {
   position: absolute;
   top: calc(100% + 6px);
@@ -309,6 +550,25 @@ html, body, #root {
   outline: none;
   min-height: 100%;
 }
+/* Make the text caret highly visible in every editable region,
+   including inside table cells where Milkdown's own theme can override
+   the inherited caret color. */
+.md-editor__wysiwyg .ProseMirror,
+.md-editor__wysiwyg .ProseMirror *,
+.md-editor__wysiwyg .ProseMirror.ProseMirror-hideselection,
+.md-editor__wysiwyg .ProseMirror.ProseMirror-hideselection * {
+  caret-color: var(--accent) !important;
+}
+.md-editor__wysiwyg .ProseMirror :where(td, th).selectedCell {
+  background-color: rgba(59, 130, 246, 0.12) !important;
+}
+/* Make the currently-edited cell unmistakable: 2px accent outline on
+   the cell that contains focus. Works even if the text caret is
+   suppressed during CellSelection by ProseMirror. */
+.md-editor__wysiwyg .ProseMirror :where(td, th):focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
 .md-editor__wysiwyg .ProseMirror h1,
 .md-editor__wysiwyg .ProseMirror h2 {
   border-bottom: none;
@@ -317,6 +577,236 @@ html, body, #root {
 .md-editor__wysiwyg .ProseMirror pre,
 .md-editor__wysiwyg .ProseMirror code {
   background: var(--bg-subtle);
+}
+.md-editor__wysiwyg .ProseMirror a {
+  cursor: pointer;
+  color: var(--accent);
+  text-decoration: underline;
+}
+.md-editor__wysiwyg .ProseMirror a:hover {
+  filter: brightness(1.15);
+}
+
+/* Variables consumed by Milkdown's interactive table-block plugin
+   (lives in @milkdown/components/table-block). Crepe-style table UX
+   relies on these. */
+:root {
+  --crepe-color-outline: var(--border);
+  --crepe-color-primary: var(--accent);
+  --crepe-color-surface: var(--bg-subtle);
+  --crepe-color-hover: rgba(127, 127, 127, 0.15);
+  --crepe-color-selected: rgba(59, 130, 246, 0.18);
+  --crepe-shadow-1: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+html.theme-dark {
+  --crepe-color-selected: rgba(96, 165, 250, 0.24);
+  --crepe-shadow-1: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Interactive table-block CSS (cloned from Crepe, kept as a single
+   self-contained block so future updates are easy to track). */
+.md-editor__wysiwyg .milkdown-table-block {
+  display: block;
+  margin: 6px 0;
+}
+.md-editor__wysiwyg .milkdown-table-block th,
+.md-editor__wysiwyg .milkdown-table-block td {
+  border: 1px solid var(--border) !important;
+  padding: 12px 18px !important;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  min-width: 140px;
+  vertical-align: middle;
+  cursor: text;
+}
+.md-editor__wysiwyg .milkdown-table-block .selectedCell::after {
+  background-color: var(--crepe-color-selected);
+  opacity: 0.5;
+}
+.md-editor__wysiwyg .milkdown-table-block .selectedCell ::selection {
+  background: transparent;
+}
+.md-editor__wysiwyg .milkdown-table-block .drag-preview {
+  background-color: var(--bg-subtle);
+  opacity: 0.5;
+  position: absolute;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+.md-editor__wysiwyg .milkdown-table-block .drag-preview[data-show='false'] { display: none; }
+.md-editor__wysiwyg .milkdown-table-block .handle {
+  position: absolute;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+.md-editor__wysiwyg .milkdown-table-block .handle[data-show='false'] { opacity: 0; }
+.md-editor__wysiwyg .milkdown-table-block svg { fill: var(--text-muted); }
+.md-editor__wysiwyg .milkdown-table-block .cell-handle {
+  z-index: 50;
+  left: -999px;
+  top: -999px;
+  cursor: grab;
+  background-color: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  box-shadow: var(--crepe-shadow-1);
+}
+.md-editor__wysiwyg .milkdown-table-block .cell-handle:hover { background-color: var(--bg-subtle); }
+.md-editor__wysiwyg .milkdown-table-block .cell-handle[data-role='col-drag-handle'] {
+  transform: translateY(50%);
+  padding: 0 6px;
+  width: 28px;
+  height: 16px;
+}
+.md-editor__wysiwyg .milkdown-table-block .cell-handle[data-role='row-drag-handle'] {
+  transform: translateX(50%);
+  padding: 6px 0;
+  width: 16px;
+  height: 28px;
+}
+.md-editor__wysiwyg .milkdown-table-block .cell-handle .button-group {
+  position: absolute;
+  transform: translateX(-50%);
+  left: 50%;
+  top: -52px;
+  display: flex;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--crepe-shadow-1);
+}
+.md-editor__wysiwyg .milkdown-table-block .cell-handle .button-group[data-show='false'] { display: none; }
+.md-editor__wysiwyg .milkdown-table-block .cell-handle .button-group button {
+  cursor: pointer;
+  margin: 6px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+}
+.md-editor__wysiwyg .milkdown-table-block .cell-handle .button-group button {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+}
+.md-editor__wysiwyg .milkdown-table-block .cell-handle .button-group button svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  fill: currentColor;
+  display: block;
+}
+.md-editor__wysiwyg .milkdown-table-block .cell-handle .button-group button:hover { background-color: var(--bg-subtle); }
+.md-editor__wysiwyg .milkdown-table-block .line-handle {
+  z-index: 20;
+  background-color: var(--accent);
+}
+.md-editor__wysiwyg .milkdown-table-block .line-handle .add-button {
+  cursor: pointer;
+  background-color: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  box-shadow: var(--crepe-shadow-1);
+}
+.md-editor__wysiwyg .milkdown-table-block .line-handle .add-button {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.md-editor__wysiwyg .milkdown-table-block .line-handle .add-button svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  fill: currentColor;
+  display: block;
+}
+.md-editor__wysiwyg .milkdown-table-block .line-handle .add-button:hover { background-color: var(--bg-subtle); }
+.md-editor__wysiwyg .milkdown-table-block .line-handle[data-role='x-line-drag-handle'] { height: 1px; z-index: 2; }
+.md-editor__wysiwyg .milkdown-table-block .line-handle[data-role='x-line-drag-handle'] .add-button {
+  position: absolute;
+  transform: translateX(-50%) translateY(-50%);
+  padding: 6px 0;
+  width: 16px;
+  height: 28px;
+}
+.md-editor__wysiwyg .milkdown-table-block .line-handle[data-role='y-line-drag-handle'] { width: 1px; z-index: 1; }
+.md-editor__wysiwyg .milkdown-table-block .line-handle[data-role='y-line-drag-handle'] .add-button {
+  position: absolute;
+  transform: translateY(-50%) translateX(-50%);
+  padding: 0 6px;
+  width: 28px;
+  height: 16px;
+}
+
+/* Legacy table styling kept for any non-tableBlock fallback path. */
+.md-editor__wysiwyg .ProseMirror table,
+.md-editor__wysiwyg .ProseMirror .tableWrapper > table {
+  border-collapse: collapse !important;
+  border: 1px solid var(--border) !important;
+  margin: 1em 0;
+  background: var(--bg) !important;
+  color: var(--text);
+  width: auto;
+  max-width: 100%;
+  /* Outer outline guaranteed visible regardless of collapse behavior.
+     Box-shadow sits outside the border box so it can't be clipped. */
+  box-shadow: 0 0 0 1px var(--border) !important;
+}
+.md-editor__wysiwyg .ProseMirror :where(th, td),
+.md-editor__wysiwyg .ProseMirror :where(th, td):nth-child(odd),
+.md-editor__wysiwyg .ProseMirror :where(th, td):nth-child(even) {
+  border: 1px solid var(--border) !important;
+  padding: 10px 14px !important;
+  text-align: left;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  vertical-align: top;
+  min-width: 80px;
+  min-height: 2.2em;
+  cursor: text;
+}
+/* Cells empty of content collapse to invisible heights; force a usable
+   click target with an &nbsp;-ish line height. */
+.md-editor__wysiwyg .ProseMirror :where(th, td) p:only-child:empty {
+  min-height: 1.4em;
+}
+.md-editor__wysiwyg .ProseMirror table {
+  table-layout: auto !important;
+}
+/* Default: no visual distinction for the header row in WYSIWYG. The
+   first row is still semantically the GFM header in the markdown
+   source (and still <th> in <thead> in HTML/PDF), but it doesn't look
+   different from body rows on screen unless the user opts in. */
+.md-editor__wysiwyg .ProseMirror thead th,
+.md-editor__wysiwyg .ProseMirror tr[data-is-header] th,
+.md-editor__wysiwyg .ProseMirror tr[data-is-header] td,
+.md-editor__wysiwyg .ProseMirror :where(thead th):nth-child(odd),
+.md-editor__wysiwyg .ProseMirror :where(thead th):nth-child(even),
+.md-editor__wysiwyg .ProseMirror :where(tr[data-is-header] *):nth-child(odd),
+.md-editor__wysiwyg .ProseMirror :where(tr[data-is-header] *):nth-child(even) {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  font-weight: inherit;
+}
+
+/* Opt-in: when md-editor--header-row-styled is on the wrapper, give
+   the first row the Word/GitHub look (subtle background + bold). */
+.md-editor--header-row-styled .md-editor__wysiwyg .ProseMirror thead th,
+.md-editor--header-row-styled .md-editor__wysiwyg .ProseMirror tr[data-is-header] th,
+.md-editor--header-row-styled .md-editor__wysiwyg .ProseMirror tr[data-is-header] td {
+  background-color: var(--bg-subtle) !important;
+  font-weight: 600;
 }
 /* HTML comments in WYSIWYG: rendered dim/italic so the user can see them
    exist (and avoid accidentally deleting them) but they don't visually
@@ -341,6 +831,80 @@ html, body, #root {
   font-size: 1rem;
   color: initial;
   letter-spacing: normal;
+}
+
+/* Highlight (==text==): hide the == markers and apply a yellow
+   background to the content. Source stays as text. */
+.md-editor__wysiwyg .ProseMirror .md-syntax-marker {
+  font-size: 0;
+  color: transparent;
+}
+.md-editor__wysiwyg .ProseMirror .md-highlight {
+  background: #fff59d;
+  color: #1a1a1a;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+html.theme-dark .md-editor__wysiwyg .ProseMirror .md-highlight {
+  background: #ffd54f;
+  color: #1a1a1a;
+}
+
+/* Footnote reference widget: a real <a> tag inserted in place of the
+   `[^N]` source text. Native browser cursor + click handling. */
+.md-editor__wysiwyg .ProseMirror .md-footnote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.md-editor__wysiwyg .ProseMirror .md-footnote-ref:hover {
+  filter: brightness(1.2);
+}
+/* The original `[^N]` text underneath the widget is hidden so it
+   doesn't double up. */
+.md-editor__wysiwyg .ProseMirror .md-footnote-ref-hidden {
+  font-size: 0;
+  color: transparent;
+}
+
+/* Footnote definition marker (`[^N]:` at the start of a line): render
+   as a small bracketed label that visually anchors the definition
+   line. */
+.md-editor__wysiwyg .ProseMirror .md-footnote-def-marker {
+  font-size: 0;
+  color: transparent;
+}
+.md-editor__wysiwyg .ProseMirror .md-footnote-def-marker::before {
+  content: attr(data-fn) '.';
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--accent);
+  margin-right: 4px;
+  letter-spacing: normal;
+}
+/* Paragraphs whose first child is a footnote definition marker get
+   a footnote-list appearance: smaller text, hanging indent. */
+.md-editor__wysiwyg .ProseMirror p:has(> .md-footnote-def-marker:first-child) {
+  font-size: 0.88em;
+  color: var(--text-muted);
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+/* Subscript / superscript: shrink and shift via CSS so source stays text. */
+.md-editor__wysiwyg .ProseMirror .md-subscript {
+  font-size: 0.75em;
+  vertical-align: sub;
+  line-height: 0;
+}
+.md-editor__wysiwyg .ProseMirror .md-superscript {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 0;
 }
 
 /* CodeMirror raw markdown surface */

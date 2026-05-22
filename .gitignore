@@ -18,3 +18,9 @@ landing/dist/
 src/shared/build-info.ts
 *~lock~
 .~lock.*
+
+# Test fixture screenshots / exported PDFs (used for ad-hoc QA)
+test-fixtures/*.pdf
+test-fixtures/*.png
+test-fixtures/*.jpg
+.wrangler/
