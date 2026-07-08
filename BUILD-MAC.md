@@ -141,7 +141,7 @@ If you have `gh` CLI installed on the Mac:
 
 ```bash
 gh auth login                 # if not already logged in as dtsoden
-gh release upload v0.1.1 \
+gh release upload v0.2.1 \
   release/Hash-Markup-mac-arm64.dmg \
   release/Hash-Markup-mac-x64.dmg \
   release/Hash-Markup-mac-arm64.zip \
