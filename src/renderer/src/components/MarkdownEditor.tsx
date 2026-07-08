@@ -514,34 +514,18 @@ export function MarkdownEditor({ initialValue, mode, dark, sanitize: _sanitize, 
   }, []);
 
   // ---------------- Spell-check on code regions ----------------
-  // Chromium spell-checks any contenteditable surface by default; that
-  // covers Milkdown (ProseMirror) and CodeMirror automatically. We add
-  // spellcheck="false" to code elements so misspellings inside code
-  // blocks and inline code don't get flagged. Stays in sync via a
-  // MutationObserver since both editors re-render aggressively.
-  useEffect(() => {
-    const wy = wysiwygHostRef.current;
-    if (!wy) return;
-    let scheduled = false;
-    const tag = (): void => {
-      scheduled = false;
-      if (!wy.isConnected) return;
-      wy.querySelectorAll('pre, code').forEach((el) => {
-        if (el.getAttribute('spellcheck') !== 'false') {
-          el.setAttribute('spellcheck', 'false');
-        }
-      });
-    };
-    const schedule = (): void => {
-      if (scheduled) return;
-      scheduled = true;
-      requestAnimationFrame(tag);
-    };
-    tag();
-    const observer = new MutationObserver(schedule);
-    observer.observe(wy, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, []);
+  // REMOVED: this used to run a MutationObserver that called
+  // setAttribute('spellcheck','false') on <pre>/<code> elements inside the
+  // Milkdown (ProseMirror) DOM. Mutating ProseMirror-managed DOM from
+  // outside is unsafe: ProseMirror's own DOMObserver detects the external
+  // mutation, runs readDOMChange, and re-reads the DOM selection — which
+  // collapsed any in-progress mouse text-selection (confirmed via the
+  // dispatch stack: readDOMChange <- DOMObserver.flush). That made text
+  // impossible to select or copy across headings / block boundaries in
+  // WYSIWYG. Browser spell-check on code regions can be reinstated later in
+  // a ProseMirror-native way (a node/inline decoration that sets the
+  // spellcheck attribute, so ProseMirror owns it and no external mutation
+  // fights the DOMObserver).
 
   // ---------------- Dark theme toggle (CodeMirror) ----------------
   // Milkdown's nord theme has its own CSS; the dark class on the wrapper
