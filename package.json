@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "setup:signing": "node scripts/setup-signing.mjs",
     "landing:build": "node landing/build.mjs",
+    "landing:og": "node landing/build-og.mjs",
     "landing:deploy": "npm run landing:build && npx wrangler pages deploy landing/dist --project-name hash-markup --branch main"
   },
   "dependencies": {

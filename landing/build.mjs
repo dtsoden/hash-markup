@@ -1,11 +1,15 @@
 // Build the landing page. Reads version from root package.json, substitutes
-// {{VERSION}} placeholders into the HTML, regenerates the social-share
-// OG image, copies all assets to dist/.
+// {{VERSION}} placeholders into the HTML, copies all assets to dist/.
+//
+// The social-share OG image (src/assets/og.png + og.jpg) is a STATIC,
+// committed asset — it is NOT regenerated here. It gets copied to dist/ like
+// any other asset, so every build ships the exact same bytes (no per-release
+// churn, no Mac/Windows drift). To deliberately refresh it after a visual
+// change, run `npm run landing:og` and commit the result.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const HERE = path.dirname(__filename);
@@ -48,12 +52,7 @@ function copyStatic() {
   copyTree(path.join(SRC, 'assets'), path.join(DIST, 'assets'));
 }
 
-function buildOg() {
-  execSync('node ' + path.join(HERE, 'build-og.mjs'), { stdio: 'inherit' });
-}
-
 rmDist();
-buildOg();
 templateHtml();
 copyStatic();
 
